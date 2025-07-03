@@ -179,7 +179,7 @@ const login = async (req, res) => {
         email: user.email,
         usertype: user.usertype
       },
-      process.env.JWT_SECRET || 'your_super_secure_jwt_secret_key_for_krishibazaar_2024',
+      process.env.JWT_SECRET || 'jwtKrishibazaar2025',
       { expiresIn: '24h' }
     );
 
