@@ -1,50 +1,46 @@
-const express = require("express");
-const cors = require("cors");
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
-const path = require('path');
-require("dotenv").config();
-const db = require("./db");
+import express from "express";
+import cors from "cors";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { body, validationResult } from "express-validator";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import db from "./db.js";
+import routes from "./src/routes/index.js";
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Add database middleware
 app.use((req, res, next) => {
-    req.db = db;
-    next();
+  req.db = db;
+  next();
 });
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/public", express.static(path.join(__dirname, "src/public")));
 
-// Routes
-app.use('/api/auth', authRoutes);
+app.use("/", routes);
 
-app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to KrishiBazar API' });
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to KrishiBazar API" });
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: err.message || 'Something went wrong!'
-    });
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Something went wrong!",
+  });
 });
 
-// Start Server
 app.listen(PORT, () => {
-    console.log(`🚀 KrishiBazar API running on http://localhost:${PORT}`);
+  console.log(`KrishiBazar API running on http://localhost:${PORT}`);
 });
-
-module.exports = app;

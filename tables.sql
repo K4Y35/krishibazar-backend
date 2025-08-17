@@ -10,10 +10,9 @@ CREATE TABLE users (
   password_hash VARCHAR(255),
   otp_code VARCHAR(10),
   otp_expires_at DATETIME,
-  is_phone_verified BOOLEAN DEFAULT FALSE,
-  is_approved BOOLEAN DEFAULT FALSE, -- 0 = pending, 1 = approved, 2 = rejected
+  is_verified BOOLEAN DEFAULT FALSE,
+  is_approved INT(11) DEFAULT 0, -- 0 = pending, 1 = approved, 2 = rejected
   approved_at DATETIME,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at DATETIME NULL
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
