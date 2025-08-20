@@ -3,6 +3,7 @@ import { runSelectSqlQuery } from '../db/sqlfunction.js';
 
 const userAuth = async (req, res, next) => {
   try {
+    console.log("userAuth middleware");
     const authHeader = req.header('Authorization');
     const token = authHeader?.startsWith('Bearer ')
       ? authHeader.slice('Bearer '.length)

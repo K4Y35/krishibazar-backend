@@ -81,7 +81,6 @@ const verifyOTP = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  console.log(req.user,"req.user");
   const { phone, password } = req.body;
   try {
     const rows = await UserDB.getUserByPhoneOrEmail(phone);
