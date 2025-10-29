@@ -1,4 +1,12 @@
-// logical table names similar to gcpay-backend's model constants
-export const Users = 'users';
-
-
+export const Users = "users";
+export const VerificationCodes = "verification_codes";
+export const Admins = "tbl_admins";
+export const Permissions = "permissions";
+export const Roles = "roles";
+export const RolePermissions = "role_permissions";
+export const AdminRoles = "admin_roles";
+export const AdminPermissions = "admin_permissions";
+export const Projects = "projects";
+export const Investments = "investments";
+export const Products = "products";
+export const Categories = "categories";

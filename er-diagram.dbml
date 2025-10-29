@@ -1,0 +1,284 @@
+Table users {
+  id int [pk, increment]
+  first_name varchar(100)
+  last_name varchar(100)
+  phone varchar(20) [unique]
+  email varchar(255) [unique]
+  nid_front varchar(255)
+  nid_back varchar(255)
+  password varchar(255)
+  is_verified tinyint
+  is_approved int
+  email_verified_at datetime
+  phone_verified_at datetime
+  approved_at datetime
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table tbl_admins {
+  id bigint [pk, increment]
+  name varchar(255)
+  username varchar(255)
+  email varchar(255)
+  password varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar(100) [unique]
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  permission_key varchar(100) [unique]
+  label varchar(255)
+}
+
+Table role_permissions {
+  role_id bigint
+  permission_id bigint
+  Note: 'PK: (role_id, permission_id)'
+  indexes {
+    (role_id, permission_id) [pk]
+    permission_id
+  }
+}
+
+Table admin_roles {
+  admin_id bigint
+  role_id bigint
+  Note: 'PK: (admin_id, role_id)'
+  indexes {
+    (admin_id, role_id) [pk]
+  }
+}
+
+Table admin_permissions {
+  admin_id bigint
+  permission_id bigint
+  Note: 'PK: (admin_id, permission_id)'
+  indexes {
+    (admin_id, permission_id) [pk]
+  }
+}
+
+Table categories {
+  id int [pk, increment]
+  name varchar(100) [unique]
+  icon varchar(100)
+  description text
+  is_active tinyint
+  created_by bigint
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table products {
+  id int [pk, increment]
+  name varchar(255)
+  type enum('product','supply')
+  category varchar(100)
+  price decimal(10,2)
+  quantity int
+  unit varchar(50)
+  min_order decimal(10,2)
+  max_order decimal(10,2)
+  product_images text
+  in_stock tinyint
+  description text
+  nutritional_info text
+  harvest_date date
+  shelf_life varchar(100)
+  farmer varchar(255)
+  certifications text
+  rating decimal(3,2)
+  reviews int
+  created_by bigint
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table product_orders {
+  id int [pk, increment]
+  user_id int
+  product_id int
+  order_quantity int
+  unit_price decimal(10,2)
+  total_price decimal(10,2)
+  order_status enum('pending','confirmed','processing','shipped','completed','cancelled')
+  customer_name varchar(255)
+  customer_phone varchar(20)
+  customer_email varchar(255)
+  delivery_address text
+  notes text
+  payment_method varchar(50)
+  payment_status enum('pending','paid','failed','refunded')
+  confirmed_by bigint
+  confirmed_at timestamp
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    user_id
+    product_id
+    order_status
+    payment_status
+    created_at
+  }
+}
+
+Table projects {
+  id int [pk, increment]
+  farmer_name varchar(255)
+  farmer_phone varchar(20)
+  farmer_address text
+  nid_card_front varchar(255)
+  nid_card_back varchar(255)
+  project_name varchar(255)
+  per_unit_price decimal(10,2)
+  total_returnable_per_unit decimal(10,2)
+  project_duration int
+  category_id int
+  total_units int
+  why_fund_with_krishibazar text
+  earning_percentage decimal(5,2)
+  status enum('pending','approved','rejected','running','completed')
+  created_by int
+  approved_by int
+  approved_at timestamp
+  rejection_reason text
+  created_at timestamp
+  updated_at timestamp
+  project_images text
+  started_at timestamp
+  completed_at timestamp
+  indexes {
+    status
+    created_by
+    created_at
+    farmer_name
+    project_name
+    (status, started_at)
+    category_id
+  }
+}
+
+Table investments {
+  id int [pk, increment]
+  user_id int
+  project_id int
+  units_invested int
+  amount_per_unit decimal(10,2)
+  total_amount decimal(10,2)
+  expected_return_amount decimal(10,2)
+  investment_date timestamp
+  status enum('pending','confirmed','cancelled','completed')
+  payment_method varchar(50)
+  payment_reference varchar(255)
+  payment_status enum('pending','paid','failed','refunded')
+  payment_date timestamp
+  maturity_date timestamp
+  return_received decimal(10,2)
+  return_date timestamp
+  notes text
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    user_id
+    project_id
+    status
+    payment_status
+    investment_date
+  }
+}
+
+Table investment_reports {
+  id int [pk, increment]
+  project_id int
+  report_period enum('monthly','quarterly','final')
+  report_date date
+  financial_summary json
+  project_metrics json
+  farmer_feedback text
+  issues_challenges text
+  next_steps text
+  photos json
+  videos json
+  created_by int
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    project_id
+    report_period
+    report_date
+  }
+}
+
+Table project_updates {
+  id int [pk, increment]
+  project_id int
+  title varchar(255)
+  description text
+  update_type enum('progress','financial','milestone','general','harvest')
+  media_files json
+  milestone_status varchar(100)
+  financial_data json
+  farmer_notes text
+  impact_metrics json
+  created_by int
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    project_id
+    update_type
+    created_at
+  }
+}
+
+Table chat_messages {
+  id int [pk, increment]
+  sender_id int
+  sender_type enum('user','admin')
+  receiver_id int
+  message text
+  is_read tinyint
+  created_at timestamp
+  updated_at timestamp
+  indexes {
+    sender_id
+    receiver_id
+    created_at
+  }
+}
+
+Table verification_codes {
+  id int [pk, increment]
+  user_id int
+  otp_code varchar(10)
+  verification_type enum('registration','password_reset','email_change','phone_change')
+  expires_at datetime
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: role_permissions.role_id > roles.id
+Ref: role_permissions.permission_id > permissions.id
+
+Ref: projects.category_id > categories.id
+
+Ref: product_orders.user_id > users.id
+Ref: product_orders.product_id > products.id
+Ref: product_orders.confirmed_by > tbl_admins.id
+
+Ref: products.created_by > tbl_admins.id
+Ref: categories.created_by > tbl_admins.id
+
+Ref: investments.user_id > users.id
+Ref: investments.project_id > projects.id
+
+Ref: investment_reports.project_id > projects.id
+Ref: project_updates.project_id > projects.id
+
+Ref: verification_codes.user_id > users.id

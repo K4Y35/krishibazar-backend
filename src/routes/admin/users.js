@@ -1,28 +1,31 @@
-import express from 'express';
+import express from "express";
 import {
-  getPendingFarmers,
-  getFarmerDetails,
-  approveFarmer,
-  rejectFarmer,
-  getPendingInvestors,
-  getInvestorDetails,
-  approveInvestor,
-  rejectInvestor,
-} from '../../controllers/Admin/UsersController.js';
-import adminAuth from '../../middlewares/adminAuth.js';
+  approveUser,
+  getAllUsers,
+  getUserDetails,
+} from "../../controllers/Admin/UsersController.js";
+import adminAuth from "../../middlewares/adminAuth.js";
+import requirePermission from "../../middlewares/requirePermission.js";
 
 const router = express.Router();
 
-router.get('/pending-farmers', adminAuth, getPendingFarmers);
-router.get('/farmer/:id', adminAuth, getFarmerDetails);
-router.post('/farmer/:id/approve', adminAuth, approveFarmer);
-router.post('/farmer/:id/reject', adminAuth, rejectFarmer);
-
-router.get('/pending-investors', adminAuth, getPendingInvestors);
-router.get('/investor/:id', adminAuth, getInvestorDetails);
-router.post('/investor/:id/approve', adminAuth, approveInvestor);
-router.post('/investor/:id/reject', adminAuth, rejectInvestor);
+router.get(
+  "/all-users",
+  adminAuth,
+  requirePermission("manage_users"),
+  getAllUsers
+);
+router.get(
+  "/details/:id",
+  adminAuth,
+  requirePermission("manage_users"),
+  getUserDetails
+);
+router.get(
+  "/approve/:id",
+  adminAuth,
+  requirePermission("manage_users"),
+  approveUser
+);
 
 export default router;
-
-

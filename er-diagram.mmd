@@ -1,0 +1,242 @@
+erDiagram
+  users {
+    int id PK
+    varchar first_name
+    varchar last_name
+    varchar phone
+    varchar email
+    varchar nid_front
+    varchar nid_back
+    varchar password
+    tinyint is_verified
+    int is_approved
+    datetime email_verified_at
+    datetime phone_verified_at
+    datetime approved_at
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  tbl_admins {
+    bigint id PK
+    varchar name
+    varchar username
+    varchar email
+    varchar password
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  roles {
+    bigint id PK
+    varchar name UK
+  }
+
+  permissions {
+    bigint id PK
+    varchar permission_key UK
+    varchar label
+  }
+
+  role_permissions {
+    bigint role_id PK,FK
+    bigint permission_id PK,FK
+  }
+
+  admin_roles {
+    bigint admin_id PK,FK
+    bigint role_id PK,FK
+  }
+
+  admin_permissions {
+    bigint admin_id PK,FK
+    bigint permission_id PK,FK
+  }
+
+  categories {
+    int id PK
+    varchar name UK
+    varchar icon
+    text description
+    tinyint is_active
+    bigint created_by
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  products {
+    int id PK
+    varchar name
+    enum type
+    varchar category
+    decimal price
+    int quantity
+    varchar unit
+    decimal min_order
+    decimal max_order
+    text product_images
+    tinyint in_stock
+    text description
+    text nutritional_info
+    date harvest_date
+    varchar shelf_life
+    varchar farmer
+    text certifications
+    decimal rating
+    int reviews
+    bigint created_by
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  product_orders {
+    int id PK
+    int user_id FK
+    int product_id FK
+    int order_quantity
+    decimal unit_price
+    decimal total_price
+    enum order_status
+    varchar customer_name
+    varchar customer_phone
+    varchar customer_email
+    text delivery_address
+    text notes
+    varchar payment_method
+    enum payment_status
+    bigint confirmed_by
+    timestamp confirmed_at
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  projects {
+    int id PK
+    varchar farmer_name
+    varchar farmer_phone
+    text farmer_address
+    varchar nid_card_front
+    varchar nid_card_back
+    varchar project_name
+    decimal per_unit_price
+    decimal total_returnable_per_unit
+    int project_duration
+    int category_id FK
+    int total_units
+    text why_fund_with_krishibazar
+    decimal earning_percentage
+    enum status
+    int created_by
+    int approved_by
+    timestamp approved_at
+    text rejection_reason
+    timestamp created_at
+    timestamp updated_at
+    text project_images
+    timestamp started_at
+    timestamp completed_at
+  }
+
+  investments {
+    int id PK
+    int user_id FK
+    int project_id FK
+    int units_invested
+    decimal amount_per_unit
+    decimal total_amount
+    decimal expected_return_amount
+    timestamp investment_date
+    enum status
+    varchar payment_method
+    varchar payment_reference
+    enum payment_status
+    timestamp payment_date
+    timestamp maturity_date
+    decimal return_received
+    timestamp return_date
+    text notes
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  investment_reports {
+    int id PK
+    int project_id FK
+    enum report_period
+    date report_date
+    json financial_summary
+    json project_metrics
+    text farmer_feedback
+    text issues_challenges
+    text next_steps
+    json photos
+    json videos
+    int created_by
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  project_updates {
+    int id PK
+    int project_id FK
+    varchar title
+    text description
+    enum update_type
+    json media_files
+    varchar milestone_status
+    json financial_data
+    text farmer_notes
+    json impact_metrics
+    int created_by
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  chat_messages {
+    int id PK
+    int sender_id
+    enum sender_type
+    int receiver_id
+    text message
+    tinyint is_read
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  verification_codes {
+    int id PK
+    int user_id FK
+    varchar otp_code
+    enum verification_type
+    datetime expires_at
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  roles ||--o{ role_permissions : has
+  permissions ||--o{ role_permissions : has
+  tbl_admins ||--o{ admin_roles : has
+  roles ||--o{ admin_roles : assigned_to
+  tbl_admins ||--o{ admin_permissions : has
+  permissions ||--o{ admin_permissions : assigned_to
+
+  categories ||--o{ projects : categorizes
+  projects ||--o{ investments : has
+  users ||--o{ investments : makes
+  projects ||--o{ investment_reports : has
+  projects ||--o{ project_updates : has
+
+  products ||--o{ product_orders : includes
+  users ||--o{ product_orders : places
+
+  users ||..o{ verification_codes : has
+
+  users ||..o{ chat_messages : sends
+  tbl_admins ||..o{ chat_messages : sends
+  users ||..o{ chat_messages : receives
+  tbl_admins ||..o{ chat_messages : receives
+
+  tbl_admins ||..o{ products : creates
+  tbl_admins ||..o{ product_orders : confirms
+  tbl_admins ||..o{ categories : creates
+  tbl_admins ||..o{ projects : approves
