@@ -5,14 +5,14 @@ CREATE TABLE `admin_permissions` (
   `admin_id` bigint unsigned NOT NULL,
   `permission_id` bigint unsigned NOT NULL,
   PRIMARY KEY (`admin_id`,`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `admin_roles` (
   `admin_id` bigint unsigned NOT NULL,
   `role_id` bigint unsigned NOT NULL,
   PRIMARY KEY (`admin_id`,`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
 
 
 
@@ -20,16 +20,16 @@ CREATE TABLE `admin_roles` (
 
 CREATE TABLE `categories` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `icon` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'crop',
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `name` varchar(100) NOT NULL,
+  `icon` varchar(100) DEFAULT 'crop',
+  `description` text,
   `is_active` tinyint(1) DEFAULT '1',
   `created_by` bigint DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_category_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `chat_messages` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -44,7 +44,7 @@ CREATE TABLE `chat_messages` (
   KEY `idx_chat_messages_sender` (`sender_id`),
   KEY `idx_chat_messages_receiver` (`receiver_id`),
   KEY `idx_chat_messages_created` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `investment_reports` (
@@ -66,7 +66,7 @@ CREATE TABLE `investment_reports` (
   KEY `idx_investment_reports_project_id` (`project_id`),
   KEY `idx_investment_reports_report_period` (`report_period`),
   KEY `idx_investment_reports_report_date` (`report_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `investments` (
@@ -99,7 +99,7 @@ CREATE TABLE `investments` (
   CONSTRAINT `investments_chk_2` CHECK ((`amount_per_unit` > 0)),
   CONSTRAINT `investments_chk_3` CHECK ((`total_amount` > 0)),
   CONSTRAINT `investments_chk_4` CHECK ((`expected_return_amount` > 0))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 
 
@@ -110,7 +110,7 @@ CREATE TABLE `permissions` (
   `label` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `permission_key` (`permission_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `product_orders` (
@@ -138,7 +138,7 @@ CREATE TABLE `product_orders` (
   KEY `idx_orders_status` (`order_status`),
   KEY `idx_orders_payment_status` (`payment_status`),
   KEY `idx_orders_created_at` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 
 --
@@ -175,7 +175,7 @@ CREATE TABLE `products` (
   CONSTRAINT `products_chk_1` CHECK ((`price` >= 0)),
   CONSTRAINT `products_chk_2` CHECK ((`min_order` >= 0)),
   CONSTRAINT `products_chk_3` CHECK (((`rating` >= 0) and (`rating` <= 5)))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `project_updates` (
@@ -196,7 +196,7 @@ CREATE TABLE `project_updates` (
   KEY `idx_project_updates_project_id` (`project_id`),
   KEY `idx_project_updates_update_type` (`update_type`),
   KEY `idx_project_updates_created_at` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `projects` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -237,7 +237,7 @@ CREATE TABLE `projects` (
   CONSTRAINT `projects_chk_3` CHECK ((`project_duration` > 0)),
   CONSTRAINT `projects_chk_4` CHECK ((`total_units` > 0)),
   CONSTRAINT `projects_chk_5` CHECK (((`earning_percentage` >= 0) and (`earning_percentage` <= 100)))
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `role_permissions` (
   `role_id` bigint unsigned NOT NULL,
@@ -246,7 +246,7 @@ CREATE TABLE `role_permissions` (
   KEY `permission_id` (`permission_id`),
   CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
   CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `roles` (
@@ -254,18 +254,18 @@ CREATE TABLE `roles` (
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `tbl_admins` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 
 
@@ -288,7 +288,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `phone` (`phone`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE `verification_codes` (
@@ -300,5 +300,5 @@ CREATE TABLE `verification_codes` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
