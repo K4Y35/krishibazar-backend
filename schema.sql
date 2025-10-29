@@ -1,3 +1,31 @@
+SET NAMES utf8mb4;
+SET time_zone = '+00:00';
+
+CREATE DATABASE IF NOT EXISTS `krishibazar` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `krishibazar`;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS
+  `role_permissions`,
+  `admin_permissions`,
+  `admin_roles`,
+  `permissions`,
+  `roles`,
+  `product_orders`,
+  `products`,
+  `project_updates`,
+  `investment_reports`,
+  `investments`,
+  `projects`,
+  `categories`,
+  `chat_messages`,
+  `tbl_admins`,
+  `users`,
+  `verification_codes`;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
 
 
 
@@ -301,4 +329,103 @@ CREATE TABLE `verification_codes` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+
+
+-- Seed data for local development/import via XAMPP
+START TRANSACTION;
+
+-- Roles
+INSERT INTO `roles` (`id`, `name`) VALUES
+  (1, 'Admin'),
+  (2, 'Manager')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
+
+-- Permissions
+INSERT INTO `permissions` (`id`, `permission_key`, `label`) VALUES
+  (1, 'products.read', 'Read products'),
+  (2, 'products.write', 'Create/Update products'),
+  (3, 'orders.manage', 'Manage orders'),
+  (4, 'projects.manage', 'Manage projects'),
+  (5, 'users.manage', 'Manage users')
+ON DUPLICATE KEY UPDATE `permission_key` = VALUES(`permission_key`), `label` = VALUES(`label`);
+
+-- Role to permission mapping
+INSERT IGNORE INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+  (1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
+  (2, 1), (2, 3);
+
+-- Admin user (password is bcrypt for "password")
+INSERT INTO `tbl_admins` (`id`, `name`, `username`, `email`, `password`, `created_at`, `updated_at`) VALUES
+  (1, 'Super Admin', 'admin', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NOW(), NOW())
+ON DUPLICATE KEY UPDATE `email` = VALUES(`email`), `username` = VALUES(`username`);
+
+-- Link admin to roles (if your app uses it)
+INSERT IGNORE INTO `admin_roles` (`admin_id`, `role_id`) VALUES (1, 1);
+
+-- Categories
+INSERT INTO `categories` (`id`, `name`, `icon`, `description`, `is_active`, `created_by`) VALUES
+  (1, 'Vegetables', 'eco', 'Fresh farm vegetables', 1, 1),
+  (2, 'Fruits', 'local_florist', 'Seasonal fruits', 1, 1)
+ON DUPLICATE KEY UPDATE `description` = VALUES(`description`), `icon` = VALUES(`icon`), `is_active` = VALUES(`is_active`);
+
+-- Site user
+INSERT INTO `users` (
+  `id`, `first_name`, `last_name`, `phone`, `email`, `password`, `is_verified`, `is_approved`, `created_at`, `updated_at`
+) VALUES (
+  1, 'Test', 'User', '+8801000000000', 'user@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 1, NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `email` = VALUES(`email`), `phone` = VALUES(`phone`);
+
+-- Products
+INSERT INTO `products` (
+  `id`, `name`, `type`, `category`, `price`, `quantity`, `unit`, `min_order`, `max_order`, `product_images`, `in_stock`, `description`, `rating`, `reviews`, `created_by`, `created_at`, `updated_at`
+) VALUES (
+  1, 'Tomato', 'product', 'Vegetables', 60.00, 100, 'per kg', 1.00, 20.00, NULL, 1, 'Fresh organic tomatoes', 4.50, 10, 1, NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `price` = VALUES(`price`), `quantity` = VALUES(`quantity`), `in_stock` = VALUES(`in_stock`);
+
+-- Projects
+INSERT INTO `projects` (
+  `id`, `farmer_name`, `farmer_phone`, `farmer_address`, `project_name`, `per_unit_price`, `total_returnable_per_unit`, `project_duration`, `category_id`, `total_units`, `why_fund_with_krishibazar`, `earning_percentage`, `status`, `created_by`, `created_at`, `updated_at`
+) VALUES (
+  1, 'Abdul Karim', '+8801700000000', 'Rajshahi, Bangladesh', 'Greenhouse Tomato Expansion', 1000.00, 1150.00, 6, 1, 500, 'Support local farmer to expand greenhouse tomato production with higher yield.', 15.00, 'approved', 1, NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `status` = VALUES(`status`), `total_units` = VALUES(`total_units`);
+
+-- Project update
+INSERT INTO `project_updates` (
+  `id`, `project_id`, `title`, `description`, `update_type`, `created_by`, `created_at`, `updated_at`
+) VALUES (
+  1, 1, 'Seedlings Transplanted', 'All seedlings have been transplanted to the greenhouse.', 'progress', 1, NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `description` = VALUES(`description`);
+
+-- Investment
+INSERT INTO `investments` (
+  `id`, `user_id`, `project_id`, `units_invested`, `amount_per_unit`, `total_amount`, `expected_return_amount`, `investment_date`, `status`, `payment_status`, `created_at`, `updated_at`
+) VALUES (
+  1, 1, 1, 5, 1000.00, 5000.00, 5750.00, NOW(), 'confirmed', 'paid', NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `status` = VALUES(`status`), `payment_status` = VALUES(`payment_status`);
+
+-- Investment report
+INSERT INTO `investment_reports` (
+  `id`, `project_id`, `report_period`, `report_date`, `financial_summary`, `project_metrics`, `created_by`, `created_at`, `updated_at`
+) VALUES (
+  1, 1, 'monthly', CURDATE(), JSON_OBJECT('revenue', 120000, 'expenses', 80000), JSON_OBJECT('yield_kg', 1500), 1, NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `report_date` = VALUES(`report_date`);
+
+-- Order
+INSERT INTO `product_orders` (
+  `id`, `user_id`, `product_id`, `order_quantity`, `unit_price`, `total_price`, `order_status`, `customer_name`, `customer_phone`, `created_at`, `updated_at`
+) VALUES (
+  1, 1, 1, 3, 60.00, 180.00, 'confirmed', 'Test User', '+8801000000000', NOW(), NOW()
+) ON DUPLICATE KEY UPDATE `order_status` = VALUES(`order_status`);
+
+-- Chat message
+INSERT INTO `chat_messages` (`id`, `sender_id`, `sender_type`, `receiver_id`, `message`, `is_read`, `created_at`, `updated_at`) VALUES
+  (1, 1, 'user', NULL, 'Hello, I have a question about my order.', 0, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `message` = VALUES(`message`);
+
+-- Verification code
+INSERT INTO `verification_codes` (`id`, `user_id`, `otp_code`, `verification_type`, `expires_at`, `created_at`, `updated_at`) VALUES
+  (1, 1, '123456', 'registration', DATE_ADD(NOW(), INTERVAL 10 MINUTE), NOW(), NOW())
+ON DUPLICATE KEY UPDATE `otp_code` = VALUES(`otp_code`), `expires_at` = VALUES(`expires_at`);
+
+COMMIT;
 
