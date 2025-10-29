@@ -265,7 +265,15 @@ CREATE TABLE `projects` (
   CONSTRAINT `projects_chk_3` CHECK ((`project_duration` > 0)),
   CONSTRAINT `projects_chk_4` CHECK ((`total_units` > 0)),
   CONSTRAINT `projects_chk_5` CHECK (((`earning_percentage` >= 0) and (`earning_percentage` <= 100)))
+
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `roles` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `role_permissions` (
   `role_id` bigint unsigned NOT NULL,
@@ -275,14 +283,6 @@ CREATE TABLE `role_permissions` (
   CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
   CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE `roles` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `tbl_admins` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
