@@ -6,7 +6,6 @@ export const getAllCategories = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.is_active !== undefined) {
     conditions.push("is_active = ?");
     params.push(filters.is_active);

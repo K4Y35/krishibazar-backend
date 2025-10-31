@@ -15,7 +15,6 @@ export const getAdminWithRolesAndPermissions = async (adminId) => {
 
   if (admin.length === 0) return null;
 
-  // Get roles assigned to admin
   const roles = await runSelectSqlQuery(
     `SELECT r.* FROM ${Roles} r
      INNER JOIN ${AdminRoles} ar ON r.id = ar.role_id
@@ -23,7 +22,6 @@ export const getAdminWithRolesAndPermissions = async (adminId) => {
     [adminId]
   );
 
-  // Get direct permissions assigned to admin
   const directPermissions = await runSelectSqlQuery(
     `SELECT p.* FROM ${Permissions} p
      INNER JOIN ${AdminPermissions} ap ON p.id = ap.permission_id
@@ -39,7 +37,6 @@ export const getAdminWithRolesAndPermissions = async (adminId) => {
 };
 
 export const getAdminEffectivePermissions = async (adminId) => {
-  // Get permissions from roles
   const rolePermissions = await runSelectSqlQuery(
     `SELECT DISTINCT p.permission_key, p.label, p.id 
      FROM ${Permissions} p
@@ -49,7 +46,6 @@ export const getAdminEffectivePermissions = async (adminId) => {
     [adminId]
   );
 
-  // Get direct permissions
   const directPermissions = await runSelectSqlQuery(
     `SELECT DISTINCT p.permission_key, p.label, p.id
      FROM ${Permissions} p
@@ -58,7 +54,6 @@ export const getAdminEffectivePermissions = async (adminId) => {
     [adminId]
   );
 
-  // Merge and deduplicate
   const permissionMap = new Map();
   [...rolePermissions, ...directPermissions].forEach(perm => {
     permissionMap.set(perm.permission_key, perm);
@@ -82,13 +77,11 @@ export const removeRoleFromAdmin = async (adminId, roleId) => {
 };
 
 export const setAdminRoles = async (adminId, roleIds) => {
-  // Remove all existing roles for this admin
   await runDeleteSqlQuery(
     `DELETE FROM ${AdminRoles} WHERE admin_id = ?`,
     [adminId]
   );
 
-  // Add new roles
   if (roleIds && roleIds.length > 0) {
     const values = roleIds.map(roleId => [adminId, roleId]);
     const placeholders = values.map(() => '(?, ?)').join(', ');
@@ -116,13 +109,11 @@ export const removePermissionFromAdmin = async (adminId, permissionId) => {
 };
 
 export const setAdminPermissions = async (adminId, permissionIds) => {
-  // Remove all existing permissions for this admin
   await runDeleteSqlQuery(
     `DELETE FROM ${AdminPermissions} WHERE admin_id = ?`,
     [adminId]
   );
 
-  // Add new permissions
   if (permissionIds && permissionIds.length > 0) {
     const values = permissionIds.map(permId => [adminId, permId]);
     const placeholders = values.map(() => '(?, ?)').join(', ');

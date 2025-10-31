@@ -6,20 +6,15 @@ import {
   deleteOrder,
 } from "../../controllers/Admin/OrderController.js";
 import adminAuth from "../../middlewares/adminAuth.js";
+import requirePermission from '../../middlewares/requirePermission.js';
 
 const router = express.Router();
 
-// Get all orders (any authenticated admin)
-router.get("/", adminAuth, getAllOrders);
+router.get("/", adminAuth,requirePermission('order_management'), getAllOrders);
 
-// Get order by ID (any authenticated admin)
-router.get("/:id", adminAuth, getOrderById);
-
-// Update order (any authenticated admin)
-router.put("/:id", adminAuth, updateOrder);
-
-// Delete order (any authenticated admin)
-router.delete("/:id", adminAuth, deleteOrder);
+router.get("/:id", adminAuth,requirePermission('order_management'), getOrderById);
+router.put("/:id", adminAuth,requirePermission('order_management'), updateOrder);
+router.delete("/:id", adminAuth,requirePermission('order_management'), deleteOrder);
 
 export default router;
 

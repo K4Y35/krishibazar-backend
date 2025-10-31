@@ -1,8 +1,5 @@
 import express from "express";
 import cors from "cors";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { body, validationResult } from "express-validator";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
@@ -65,21 +62,21 @@ const connectedUsers = new Map();
 const connectedAdmins = new Map();
 
 io.on("connection", (socket) => {
-  console.log("============ NEW SOCKET CONNECTION ============");
-  console.log("Socket ID:", socket.id);
+  // console.log("============ NEW SOCKET CONNECTION ============");
+  // console.log("Socket ID:", socket.id);
 
   socket.on("auth", async (authData) => {
     const { userId, userType, name } = authData;
-    console.log("Auth received:", { userId, userType, name });
+    // console.log("Auth received:", { userId, userType, name });
 
     if (userType === "admin") {
       connectedAdmins.set(userId, { socket, name, userId });
       io.emit("admin-online", connectedAdmins.size);
-      console.log("Admin connected. Total admins:", connectedAdmins.size);
+      // console.log("Admin connected. Total admins:", connectedAdmins.size);
     } else if (userType === "user") {
       connectedUsers.set(userId, { socket, name, userId });
       io.emit("user-online", connectedUsers.size);
-      console.log("User connected. Total users:", connectedUsers.size);
+      // console.log("User connected. Total users:", connectedUsers.size);
       // Notify all admins
       connectedAdmins.forEach((admin) => {
         admin.socket.emit("user-connected", userId);
@@ -90,8 +87,8 @@ io.on("connection", (socket) => {
   // Handle sending messages
   socket.on("send-message", async (data) => {
     try {
-      console.log("\n============ NEW MESSAGE RECEIVED ============");
-      console.log("Full message data:", JSON.stringify(data, null, 2));
+      // console.log("\n============ NEW MESSAGE RECEIVED ============");
+      // console.log("Full message data:", JSON.stringify(data, null, 2));
 
       const { senderId, senderType, message, receiverId } = data;
 
@@ -105,15 +102,10 @@ io.on("connection", (socket) => {
       // Save to database
       const query = `INSERT INTO chat_messages (sender_id, sender_type, receiver_id, message) VALUES (?, ?, ?, ?)`;
 
-      console.log("About to insert into database...");
+      // console.log("About to insert into database...");
 
-      // Use db directly since it's already a promise pool
       db.query(query, [senderId, senderType, receiverId || null, message])
         .then(([result]) => {
-          console.log(
-            "Message saved to database successfully. Insert ID:",
-            result.insertId
-          );
 
           const messageData = {
             id: result.insertId,
@@ -126,7 +118,6 @@ io.on("connection", (socket) => {
             isRead: false,
           };
 
-          console.log("Broadcasting message:", messageData);
 
           // Broadcast to all admins if user sent
           if (senderType === "user") {
@@ -134,18 +125,12 @@ io.on("connection", (socket) => {
               connectedAdmins.forEach((admin) => {
                 admin.socket.emit("message", messageData);
               });
-              console.log("Message sent to", connectedAdmins.size, "admins");
-            } else {
-              console.log("No admins online to receive message");
-            }
+            } 
           } else {
             // Admin sending to specific user
             if (receiverId && connectedUsers.has(receiverId)) {
               const targetUser = connectedUsers.get(receiverId);
               targetUser.socket.emit("message", messageData);
-              console.log("Admin message sent to user:", receiverId);
-            } else {
-              console.log("Target user not online:", receiverId);
             }
           }
 
@@ -177,14 +162,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("Socket disconnected:", socket.id);
-
-    // Remove from maps
     connectedAdmins.forEach((admin, adminId) => {
       if (admin.socket.id === socket.id) {
         connectedAdmins.delete(adminId);
         io.emit("admin-online", connectedAdmins.size);
-        console.log("Admin disconnected. Total admins:", connectedAdmins.size);
       }
     });
 
@@ -192,7 +173,6 @@ io.on("connection", (socket) => {
       if (user.socket.id === socket.id) {
         connectedUsers.delete(userId);
         io.emit("user-online", connectedUsers.size);
-        console.log("User disconnected. Total users:", connectedUsers.size);
       }
     });
   });

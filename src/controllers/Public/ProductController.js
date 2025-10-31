@@ -1,14 +1,13 @@
 import * as ProductModel from "../../models/Product.js";
 
-// Get all products for public display
 export const getAllProducts = async (req, res) => {
   try {
     const { category, type, search, page = 1, limit = 20 } = req.query;
     
     const filters = {
       category,
-      type, // Filter by product or supply type
-      in_stock: true, // Only show in-stock products
+      type,
+      in_stock: true,
       search,
       page: parseInt(page),
       limit: parseInt(limit)
@@ -37,7 +36,6 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// Get single product by ID for public display
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -51,7 +49,6 @@ export const getProductById = async (req, res) => {
       });
     }
 
-    // Check if product is in stock
     if (!product.in_stock) {
       return res.status(404).json({
         success: false,

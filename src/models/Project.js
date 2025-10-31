@@ -6,13 +6,11 @@ export const getAllProjects = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.status) {
     conditions.push("status = ?");
     params.push(filters.status);
   }
 
-  // Handle multiple statuses (for showing both approved and running projects)
   if (filters.statuses && Array.isArray(filters.statuses)) {
     const placeholders = filters.statuses.map(() => '?').join(',');
     conditions.push(`status IN (${placeholders})`);
@@ -34,7 +32,6 @@ export const getAllProjects = async (filters = {}) => {
     query += " WHERE " + conditions.join(" AND ");
   }
 
-  // Add pagination
   if (filters.page && filters.limit) {
     const offset = (filters.page - 1) * filters.limit;
     query += ` ORDER BY created_at DESC LIMIT ${filters.limit} OFFSET ${offset}`;
@@ -98,7 +95,6 @@ export const updateProject = async (id, projectData) => {
   const updateFields = [];
   const params = [];
 
-  // Build dynamic update query
   Object.keys(projectData).forEach(key => {
     if (projectData[key] !== undefined && projectData[key] !== null) {
       updateFields.push(`${key} = ?`);
@@ -158,13 +154,11 @@ export const getProjectsCount = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.status) {
     conditions.push("status = ?");
     params.push(filters.status);
   }
 
-  // Handle multiple statuses
   if (filters.statuses && Array.isArray(filters.statuses)) {
     const placeholders = filters.statuses.map(() => '?').join(',');
     conditions.push(`status IN (${placeholders})`);

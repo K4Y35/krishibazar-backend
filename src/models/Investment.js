@@ -11,7 +11,6 @@ export const getAllInvestments = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.status) {
     conditions.push("i.status = ?");
     params.push(filters.status);
@@ -36,7 +35,6 @@ export const getAllInvestments = async (filters = {}) => {
     query += " WHERE " + conditions.join(" AND ");
   }
 
-  // Add pagination
   if (filters.page && filters.limit) {
     const offset = (filters.page - 1) * filters.limit;
     query += ` ORDER BY i.created_at DESC LIMIT ${filters.limit} OFFSET ${offset}`;
@@ -93,7 +91,7 @@ export const createInvestment = async (investmentData) => {
     expected_return_amount,
     payment_method,
     payment_reference,
-    notes
+    notes,
   } = investmentData;
 
   return await runInsertSqlQuery(
@@ -107,7 +105,7 @@ export const createInvestment = async (investmentData) => {
       expected_return_amount,
       payment_method,
       payment_reference,
-      notes
+      notes,
     ]
   );
 };
@@ -116,8 +114,7 @@ export const updateInvestment = async (id, investmentData) => {
   const updateFields = [];
   const params = [];
 
-  // Build dynamic update query
-  Object.keys(investmentData).forEach(key => {
+  Object.keys(investmentData).forEach((key) => {
     if (investmentData[key] !== undefined && investmentData[key] !== null) {
       updateFields.push(`${key} = ?`);
       params.push(investmentData[key]);
@@ -138,7 +135,7 @@ export const updateInvestment = async (id, investmentData) => {
 
 export const confirmInvestment = async (id, paymentData) => {
   const { payment_reference, payment_method } = paymentData;
-  
+
   return await runUpdateSqlQuery(
     `UPDATE ${Investments} SET status = 'confirmed', payment_status = 'paid', payment_reference = ?, payment_method = ?, payment_date = NOW() WHERE id = ?`,
     [payment_reference, payment_method, id]
@@ -204,12 +201,11 @@ export const getProjectInvestmentStats = async (projectId) => {
     FROM ${Investments}
     WHERE project_id = ? AND status IN ('pending', 'confirmed', 'completed')
   `;
-  
+
   const result = await runSelectSqlQuery(query, [projectId]);
   return result[0];
 };
 
-// Get all investors for a specific project with their contact information
 export const getProjectInvestors = async (projectId) => {
   const query = `
     SELECT DISTINCT
@@ -224,6 +220,43 @@ export const getProjectInvestors = async (projectId) => {
     WHERE i.project_id = ? AND i.status IN ('confirmed', 'completed')
     GROUP BY i.user_id, u.first_name, u.last_name, u.email
   `;
-  
+
   return await runSelectSqlQuery(query, [projectId]);
+};
+
+// Find an existing confirmed investment for the same user and project
+export const getConfirmedInvestmentByUserAndProject = async (
+  userId,
+  projectId
+) => {
+  const query = `
+    SELECT * FROM ${Investments}
+    WHERE user_id = ? AND project_id = ? AND status = 'confirmed'
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+  const rows = await runSelectSqlQuery(query, [userId, projectId]);
+  return rows[0] || null;
+};
+
+// Update an investment's numeric fields by adding the provided values
+export const addToInvestmentTotals = async (
+  id,
+  { unitsDelta, totalAmountDelta, expectedReturnDelta }
+) => {
+  return await runUpdateSqlQuery(
+    `UPDATE ${Investments}
+     SET units_invested = units_invested + ?,
+         total_amount = total_amount + ?,
+         expected_return_amount = expected_return_amount + ?,
+         updated_at = NOW()
+     WHERE id = ?`,
+    [unitsDelta, totalAmountDelta, expectedReturnDelta, id]
+  );
+};
+
+export const deleteInvestment = async (id) => {
+  return await runDeleteSqlQuery(`DELETE FROM ${Investments} WHERE id = ?`, [
+    id,
+  ]);
 };

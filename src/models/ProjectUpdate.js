@@ -84,7 +84,6 @@ export const updateUpdate = async (id, updateData) => {
   Object.keys(updateData).forEach(key => {
     if (updateData[key] !== undefined && updateData[key] !== null) {
       updateFields.push(`${key} = ?`);
-      // Stringify JSON fields
       const value = typeof updateData[key] === 'object' && updateData[key] !== null 
         ? JSON.stringify(updateData[key]) 
         : updateData[key];

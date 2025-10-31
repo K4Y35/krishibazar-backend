@@ -20,7 +20,6 @@ const connectDB = async () => {
     const [rows] = await promisePool.query('SELECT 1 + 1 AS result');
     return rows;
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('DB connection test failed:', err);
     throw err;
   }

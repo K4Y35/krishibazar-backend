@@ -87,13 +87,11 @@ export const removePermissionFromRole = async (roleId, permissionId) => {
 };
 
 export const setRolePermissions = async (roleId, permissionIds) => {
-  // Remove all existing permissions for this role
   await runDeleteSqlQuery(
     `DELETE FROM ${RolePermissions} WHERE role_id = ?`,
     [roleId]
   );
 
-  // Add new permissions
   if (permissionIds && permissionIds.length > 0) {
     const values = permissionIds.map(permId => [roleId, permId]);
     const placeholders = values.map(() => '(?, ?)').join(', ');

@@ -3,29 +3,32 @@ import * as ProjectModel from "../../models/Project.js";
 import * as InvestmentModel from "../../models/Investment.js";
 import { sendProjectUpdateNotification } from "../../services/emailService.js";
 
-// Get all project updates
 export const getAllUpdates = async (req, res) => {
   try {
     const { project_id, update_type, page, limit } = req.query;
-    const filters = { project_id, update_type, page: parseInt(page), limit: parseInt(limit) };
-    
+    const filters = {
+      project_id,
+      update_type,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    };
+
     const updates = await ProjectUpdateModel.getAllUpdates(filters);
-    
+
     res.json({
       success: true,
-      data: updates
+      data: updates,
     });
   } catch (error) {
-    console.error('Error fetching updates:', error);
+    console.error("Error fetching updates:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch project updates',
-      error: error.message
+      message: "Failed to fetch project updates",
+      error: error.message,
     });
   }
 };
 
-// Get single update
 export const getUpdateById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -52,7 +55,6 @@ export const getUpdateById = async (req, res) => {
   }
 };
 
-// Create project update
 export const createUpdate = async (req, res) => {
   try {
     const {
@@ -64,35 +66,34 @@ export const createUpdate = async (req, res) => {
       milestone_status,
       financial_data,
       farmer_notes,
-      impact_metrics
+      impact_metrics,
     } = req.body;
 
-    // Validate required fields
     if (!project_id || !title || !update_type) {
       return res.status(400).json({
         success: false,
-        message: 'Project ID, title, and update type are required'
+        message: "Project ID, title, and update type are required",
       });
     }
 
-    // Verify project exists
     const project = await ProjectModel.getProjectById(project_id);
     if (!project) {
       return res.status(404).json({
         success: false,
-        message: 'Project not found'
+        message: "Project not found",
       });
     }
 
-    // Handle uploaded files
     let uploadedFiles = null;
-    if (req.files && req.files['media_files']) {
-      const files = Array.isArray(req.files['media_files']) 
-        ? req.files['media_files'] 
-        : [req.files['media_files']];
-      
-      // Process file uploads (convert to JSON array of filenames)
-      uploadedFiles = files.map(file => file.filename);
+    // Support both upload.array("media_files") => req.files is an array
+    // and upload.fields({ name: "media_files" }) => req.files["media_files"]
+    if (Array.isArray(req.files) && req.files.length > 0) {
+      uploadedFiles = req.files.map((file) => file.filename);
+    } else if (req.files && req.files["media_files"]) {
+      const files = Array.isArray(req.files["media_files"])
+        ? req.files["media_files"]
+        : [req.files["media_files"]];
+      uploadedFiles = files.map((file) => file.filename);
     }
 
     const updateData = {
@@ -100,23 +101,27 @@ export const createUpdate = async (req, res) => {
       title,
       description,
       update_type,
-      media_files: uploadedFiles || (media_files ? JSON.parse(media_files) : null),
+      media_files:
+        uploadedFiles ||
+        (Array.isArray(media_files)
+          ? media_files
+          : media_files
+          ? JSON.parse(media_files)
+          : null),
       milestone_status,
       financial_data: financial_data ? JSON.parse(financial_data) : null,
       farmer_notes,
       impact_metrics: impact_metrics ? JSON.parse(impact_metrics) : null,
-      created_by: req.user.id
+      created_by: req.user.id,
     };
 
     const result = await ProjectUpdateModel.createUpdate(updateData);
     const newUpdate = await ProjectUpdateModel.getUpdateById(result.insertId);
 
-    // Get all investors for this project and send notifications
     try {
       const investors = await InvestmentModel.getProjectInvestors(project_id);
-      
+
       if (investors && investors.length > 0) {
-        // Send email notification to each investor
         const emailPromises = investors.map(async (investor) => {
           try {
             const investorName = `${investor.first_name} ${investor.last_name}`;
@@ -128,38 +133,40 @@ export const createUpdate = async (req, res) => {
             );
             console.log(`Email sent to investor: ${investor.email}`);
           } catch (emailError) {
-            console.error(`Failed to send email to ${investor.email}:`, emailError);
+            console.error(
+              `Failed to send email to ${investor.email}:`,
+              emailError
+            );
           }
         });
-        
-        // Send emails in parallel (don't wait for all to complete)
+
         Promise.all(emailPromises).then(() => {
-          console.log(`Sent update notifications to ${investors.length} investors for project ${project_id}`);
+          console.log(
+            `Sent update notifications to ${investors.length} investors for project ${project_id}`
+          );
         });
       } else {
         console.log(`No confirmed investors found for project ${project_id}`);
       }
     } catch (notificationError) {
-      // Log error but don't fail the request
-      console.error('Error sending investor notifications:', notificationError);
+      console.error("Error sending investor notifications:", notificationError);
     }
 
     res.status(201).json({
       success: true,
-      message: 'Project update created successfully',
-      data: newUpdate
+      message: "Project update created successfully",
+      data: newUpdate,
     });
   } catch (error) {
-    console.error('Error creating update:', error);
+    console.error("Error creating update:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create update',
-      error: error.message
+      message: "Failed to create update",
+      error: error.message,
     });
   }
 };
 
-// Update project update
 export const updateUpdate = async (req, res) => {
   try {
     const { id } = req.params;
@@ -169,18 +176,23 @@ export const updateUpdate = async (req, res) => {
     if (!update) {
       return res.status(404).json({
         success: false,
-        message: 'Update not found'
+        message: "Update not found",
       });
     }
 
-    // Parse JSON fields if they exist
-    if (updateData.media_files && typeof updateData.media_files === 'string') {
+    if (updateData.media_files && typeof updateData.media_files === "string") {
       updateData.media_files = JSON.parse(updateData.media_files);
     }
-    if (updateData.financial_data && typeof updateData.financial_data === 'string') {
+    if (
+      updateData.financial_data &&
+      typeof updateData.financial_data === "string"
+    ) {
       updateData.financial_data = JSON.parse(updateData.financial_data);
     }
-    if (updateData.impact_metrics && typeof updateData.impact_metrics === 'string') {
+    if (
+      updateData.impact_metrics &&
+      typeof updateData.impact_metrics === "string"
+    ) {
       updateData.impact_metrics = JSON.parse(updateData.impact_metrics);
     }
 
@@ -189,20 +201,19 @@ export const updateUpdate = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Update modified successfully',
-      data: updated
+      message: "Update modified successfully",
+      data: updated,
     });
   } catch (error) {
-    console.error('Error updating update:', error);
+    console.error("Error updating update:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update project update',
-      error: error.message
+      message: "Failed to update project update",
+      error: error.message,
     });
   }
 };
 
-// Delete project update
 export const deleteUpdate = async (req, res) => {
   try {
     const { id } = req.params;

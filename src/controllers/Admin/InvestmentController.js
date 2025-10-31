@@ -1,17 +1,23 @@
 import * as InvestmentModel from "../../models/Investment.js";
 
-// Get all investments with filters (admin)
 export const getAllInvestments = async (req, res) => {
   try {
-    const { status, payment_status, user_id, project_id, page = 1, limit = 20 } = req.query;
-    
+    const {
+      status,
+      payment_status,
+      user_id,
+      project_id,
+      page = 1,
+      limit = 20,
+    } = req.query;
+
     const filters = {
       status,
       payment_status,
       user_id,
       project_id,
       page: parseInt(page),
-      limit: parseInt(limit)
+      limit: parseInt(limit),
     };
 
     const investments = await InvestmentModel.getAllInvestments(filters);
@@ -24,20 +30,19 @@ export const getAllInvestments = async (req, res) => {
         investments,
         totalPages,
         currentPage: parseInt(page),
-        totalCount
-      }
+        totalCount,
+      },
     });
   } catch (error) {
-    console.error('Error fetching investments:', error);
+    console.error("Error fetching investments:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch investments',
-      error: error.message
+      message: "Failed to fetch investments",
+      error: error.message,
     });
   }
 };
 
-// Get investment by ID (admin)
 export const getInvestmentById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,7 +69,6 @@ export const getInvestmentById = async (req, res) => {
   }
 };
 
-// Confirm investment payment (admin)
 export const confirmInvestment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -75,36 +79,65 @@ export const confirmInvestment = async (req, res) => {
     if (!investment) {
       return res.status(404).json({
         success: false,
-        message: 'Investment not found'
+        message: "Investment not found",
       });
     }
 
-    if (investment.status !== 'pending') {
+    if (investment.status !== "pending") {
       return res.status(400).json({
         success: false,
-        message: 'Only pending investments can be confirmed'
+        message: "Only pending investments can be confirmed",
       });
     }
 
-    await InvestmentModel.confirmInvestment(id, { payment_reference, payment_method });
-    const updatedInvestment = await InvestmentModel.getInvestmentById(id);
+    // See if there is an existing confirmed investment for same user+project
+    const existing =
+      await InvestmentModel.getConfirmedInvestmentByUserAndProject(
+        investment.user_id,
+        investment.project_id
+      );
 
-    res.json({
-      success: true,
-      message: 'Investment confirmed successfully',
-      data: updatedInvestment
-    });
+    if (existing) {
+      // Merge this pending into existing confirmed: add units and amounts
+      await InvestmentModel.addToInvestmentTotals(existing.id, {
+        unitsDelta: investment.units_invested,
+        totalAmountDelta: investment.total_amount,
+        expectedReturnDelta: investment.expected_return_amount,
+      });
+
+      // Delete the pending one after merging to avoid duplicates in listings
+      await InvestmentModel.deleteInvestment(investment.id);
+
+      const merged = await InvestmentModel.getInvestmentById(existing.id);
+      res.json({
+        success: true,
+        message: "Investment merged with existing confirmed investment",
+        data: merged,
+      });
+    } else {
+      // No existing confirmed record; confirm this one normally
+      await InvestmentModel.confirmInvestment(id, {
+        payment_reference,
+        payment_method,
+      });
+      const updatedInvestment = await InvestmentModel.getInvestmentById(id);
+
+      res.json({
+        success: true,
+        message: "Investment confirmed successfully",
+        data: updatedInvestment,
+      });
+    }
   } catch (error) {
-    console.error('Error confirming investment:', error);
+    console.error("Error confirming investment:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to confirm investment',
-      error: error.message
+      message: "Failed to confirm investment",
+      error: error.message,
     });
   }
 };
 
-// Cancel investment (admin)
 export const cancelInvestment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -144,7 +177,6 @@ export const cancelInvestment = async (req, res) => {
   }
 };
 
-// Complete investment (admin)
 export const completeInvestment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -155,14 +187,14 @@ export const completeInvestment = async (req, res) => {
     if (!investment) {
       return res.status(404).json({
         success: false,
-        message: 'Investment not found'
+        message: "Investment not found",
       });
     }
 
-    if (investment.status !== 'confirmed') {
+    if (investment.status !== "confirmed") {
       return res.status(400).json({
         success: false,
-        message: 'Only confirmed investments can be completed'
+        message: "Only confirmed investments can be completed",
       });
     }
 
@@ -171,20 +203,19 @@ export const completeInvestment = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Investment completed successfully',
-      data: updatedInvestment
+      message: "Investment completed successfully",
+      data: updatedInvestment,
     });
   } catch (error) {
-    console.error('Error completing investment:', error);
+    console.error("Error completing investment:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to complete investment',
-      error: error.message
+      message: "Failed to complete investment",
+      error: error.message,
     });
   }
 };
 
-// Get investment statistics
 export const getInvestmentStats = async (req, res) => {
   try {
     const { project_id } = req.query;

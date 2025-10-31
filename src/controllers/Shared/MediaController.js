@@ -36,7 +36,6 @@ export const uploadMedia = async (req, res) => {
       });
     });
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error("Upload error:", err);
     return res
       .status(500)
@@ -55,7 +54,6 @@ export const deleteImage = async (req, res) => {
     }
     return res.status(404).json({ success: false, message: 'Image not found' });
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('Delete error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }

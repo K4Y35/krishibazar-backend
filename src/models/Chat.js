@@ -10,25 +10,21 @@ export const getAllMessages = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Filter by sender
   if (filters.sender_id) {
     conditions.push("cm.sender_id = ?");
     params.push(filters.sender_id);
   }
 
-  // Filter by receiver
   if (filters.receiver_id) {
     conditions.push("cm.receiver_id = ?");
     params.push(filters.receiver_id);
   }
 
-  // Filter by sender type
   if (filters.sender_type) {
     conditions.push("cm.sender_type = ?");
     params.push(filters.sender_type);
   }
 
-  // Get messages between specific users
   if (filters.user_id && filters.admin_id) {
     conditions.push(
       "((cm.sender_id = ? AND cm.receiver_id = ?) OR (cm.sender_id = ? AND cm.receiver_id = ?))"

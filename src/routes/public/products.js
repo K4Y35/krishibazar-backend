@@ -3,7 +3,6 @@ import * as ProductController from '../../controllers/Public/ProductController.j
 
 const router = express.Router();
 
-// Public routes for the main site to fetch products
 router.get('/', ProductController.getAllProducts);
 router.get('/:id', ProductController.getProductById);
 

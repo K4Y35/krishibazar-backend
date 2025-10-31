@@ -56,7 +56,6 @@ export const changePassword = async (req, res) => {
 
     return res.json({ success: true, message: "Password changed successfully" });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Change password error:", error);
     return res.status(500).json({ success: false, message: "Failed to change password" });
   }

@@ -6,7 +6,6 @@ export const getAllProducts = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.category) {
     conditions.push("category = ?");
     params.push(filters.category);
@@ -32,7 +31,6 @@ export const getAllProducts = async (filters = {}) => {
     query += " WHERE " + conditions.join(" AND ");
   }
 
-  // Add pagination
   if (filters.page && filters.limit) {
     const offset = (filters.page - 1) * filters.limit;
     query += ` ORDER BY created_at DESC LIMIT ${filters.limit} OFFSET ${offset}`;
@@ -104,7 +102,6 @@ export const updateProduct = async (id, productData) => {
   const updateFields = [];
   const params = [];
 
-  // Build dynamic update query
   Object.keys(productData).forEach(key => {
     if (productData[key] !== undefined && productData[key] !== null) {
       updateFields.push(`${key} = ?`);
@@ -136,7 +133,6 @@ export const getProductsCount = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.category) {
     conditions.push("category = ?");
     params.push(filters.category);

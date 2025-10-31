@@ -5,7 +5,6 @@ import { runInsertSqlQuery, runSelectSqlQuery } from "../../db/sqlfunction.js";
 import { Admins } from "../../db/model.js";
 import bcrypt from "bcryptjs";
 
-// ============ PERMISSIONS ============
 
 export const getAllPermissions = async (req, res) => {
   try {
@@ -34,7 +33,6 @@ export const createPermission = async (req, res) => {
       });
     }
 
-    // Check if permission already exists
     const existing = await PermissionModel.getPermissionByKey(permission_key);
     if (existing) {
       return res.status(400).json({
@@ -109,7 +107,6 @@ export const deletePermission = async (req, res) => {
   }
 };
 
-// ============ ROLES ============
 
 export const getAllRoles = async (req, res) => {
   try {
@@ -166,7 +163,6 @@ export const createRole = async (req, res) => {
     const result = await RoleModel.createRole(name);
     const roleId = result.insertId;
 
-    // Assign permissions if provided
     if (permission_ids && permission_ids.length > 0) {
       await RoleModel.setRolePermissions(roleId, permission_ids);
     }
@@ -201,7 +197,6 @@ export const updateRole = async (req, res) => {
 
     await RoleModel.updateRole(id, name);
 
-    // Update permissions if provided
     if (permission_ids !== undefined) {
       await RoleModel.setRolePermissions(id, permission_ids);
     }
@@ -241,13 +236,11 @@ export const deleteRole = async (req, res) => {
   }
 };
 
-// ============ ADMINS ============
 
 export const getAllAdmins = async (req, res) => {
   try {
     const admins = await AdminRBACModel.getAllAdmins();
 
-    // Get roles and permissions for each admin
     const adminsWithRBAC = await Promise.all(
       admins.map(async (admin) => {
         const adminData = await AdminRBACModel.getAdminWithRolesAndPermissions(admin.id);
@@ -307,7 +300,6 @@ export const createAdmin = async (req, res) => {
   try {
     const { name, username, email, password, role_ids, permission_ids } = req.body;
 
-    // Validate required fields
     if (!name || !username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -315,7 +307,6 @@ export const createAdmin = async (req, res) => {
       });
     }
 
-    // Check if username already exists
     const existingUsername = await runSelectSqlQuery(
       `SELECT id FROM ${Admins} WHERE username = ?`,
       [username]
@@ -328,7 +319,6 @@ export const createAdmin = async (req, res) => {
       });
     }
 
-    // Check if email already exists
     const existingEmail = await runSelectSqlQuery(
       `SELECT id FROM ${Admins} WHERE email = ?`,
       [email]
@@ -341,10 +331,8 @@ export const createAdmin = async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create admin
     const result = await runInsertSqlQuery(
       `INSERT INTO ${Admins} (name, username, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())`,
       [name, username, email, hashedPassword]
@@ -352,17 +340,14 @@ export const createAdmin = async (req, res) => {
 
     const adminId = result.insertId;
 
-    // Assign roles if provided
     if (role_ids && Array.isArray(role_ids) && role_ids.length > 0) {
       await AdminRBACModel.setAdminRoles(adminId, role_ids);
     }
 
-    // Assign direct permissions if provided
     if (permission_ids && Array.isArray(permission_ids) && permission_ids.length > 0) {
       await AdminRBACModel.setAdminPermissions(adminId, permission_ids);
     }
 
-    // Fetch the created admin with roles and permissions
     const admin = await AdminRBACModel.getAdminWithRolesAndPermissions(adminId);
     const effectivePermissions = await AdminRBACModel.getAdminEffectivePermissions(adminId);
 
@@ -455,7 +440,6 @@ export const getMyPermissions = async (req, res) => {
   try {
     const admin = req.user;
 
-    // Superadmin has all permissions
     if (admin.username === "superadmin") {
       const allPermissions = await PermissionModel.getAllPermissions();
       return res.json({

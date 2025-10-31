@@ -1,7 +1,4 @@
-/**
- * Email Service for KrishiBazar
- * Template system with comprehensive OTP functionality
- */
+
 
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';

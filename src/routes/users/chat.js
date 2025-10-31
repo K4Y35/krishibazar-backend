@@ -4,11 +4,8 @@ import userAuth from "../../middlewares/userAuth.js";
 
 const router = express.Router();
 
-// Get chat messages
 router.get("/messages", userAuth, async (req, res) => {
   try {
-    // Get all messages for this user (both sent and received)
-    // Messages where user is sender OR where user is receiver
     let query = `
       SELECT cm.*,
              u.first_name as sender_name
@@ -35,7 +32,6 @@ router.get("/messages", userAuth, async (req, res) => {
   }
 });
 
-// Create chat message
 router.post("/messages", userAuth, async (req, res) => {
   try {
     const { message, receiver_id } = req.body;
@@ -72,7 +68,6 @@ router.post("/messages", userAuth, async (req, res) => {
   }
 });
 
-// Mark messages as read
 router.put("/messages/read", userAuth, async (req, res) => {
   try {
     const { message_id } = req.body;
@@ -97,7 +92,6 @@ router.put("/messages/read", userAuth, async (req, res) => {
   }
 });
 
-// Get unread count
 router.get("/unread", userAuth, async (req, res) => {
   try {
     const count = await ChatModel.getUnreadCount(req.user.id);

@@ -1,9 +1,5 @@
 import { checkAdminPermission } from "../models/AdminRBAC.js";
 
-/**
- * Middleware to check if admin has required permission
- * Usage: router.get('/path', adminAuth, requirePermission('permission_key'), handler)
- */
 const requirePermission = (permissionKey) => {
   return async (req, res, next) => {
     try {
@@ -16,12 +12,10 @@ const requirePermission = (permissionKey) => {
         });
       }
 
-      // Superadmin has all permissions
       if (admin.username === "superadmin") {
         return next();
       }
 
-      // Check if admin has the required permission
       const hasPermission = await checkAdminPermission(admin.id, permissionKey);
 
       if (!hasPermission) {

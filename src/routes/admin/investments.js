@@ -1,26 +1,20 @@
 import express from 'express';
 import * as InvestmentController from '../../controllers/Admin/InvestmentController.js';
 import adminAuth from '../../middlewares/adminAuth.js';
+import requirePermission from '../../middlewares/requirePermission.js';
 
 const router = express.Router();
 
-// ============ ADMIN INVESTMENT ROUTES ============
-// Get all investments with filters (any authenticated admin)
-router.get('/', adminAuth, InvestmentController.getAllInvestments);
+router.get('/', adminAuth,requirePermission('investment_management'), InvestmentController.getAllInvestments);
 
-// Get investment by ID (any authenticated admin)
-router.get('/:id', adminAuth, InvestmentController.getInvestmentById);
+router.get('/:id', adminAuth,requirePermission('investment_management'), InvestmentController.getInvestmentById);
 
-// Confirm investment payment (any authenticated admin)
-router.put('/:id/confirm', adminAuth, InvestmentController.confirmInvestment);
+router.put('/:id/confirm', adminAuth,requirePermission('investment_management'), InvestmentController.confirmInvestment);
 
-// Cancel investment (any authenticated admin)
-router.put('/:id/cancel', adminAuth, InvestmentController.cancelInvestment);
+router.put('/:id/cancel', adminAuth,requirePermission('investment_management'), InvestmentController.cancelInvestment);
 
-// Complete investment (any authenticated admin)
-router.put('/:id/complete', adminAuth, InvestmentController.completeInvestment);
+router.put('/:id/complete', adminAuth,requirePermission('investment_management'), InvestmentController.completeInvestment);
 
-// Get investment statistics
-router.get('/stats/project/:project_id', adminAuth, InvestmentController.getInvestmentStats);
+router.get('/stats/project/:project_id', adminAuth,requirePermission('investment_management'), InvestmentController.getInvestmentStats);
 
 export default router;

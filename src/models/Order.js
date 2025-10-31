@@ -12,7 +12,6 @@ export const getAllOrders = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.user_id) {
     conditions.push("o.user_id = ?");
     params.push(filters.user_id);
@@ -88,7 +87,6 @@ export const updateOrder = async (id, orderData) => {
   const updateFields = [];
   const params = [];
 
-  // Build dynamic update query
   Object.keys(orderData).forEach(key => {
     if (orderData[key] !== undefined && orderData[key] !== null) {
       updateFields.push(`${key} = ?`);
@@ -120,7 +118,6 @@ export const getOrdersCount = async (filters = {}) => {
   const params = [];
   const conditions = [];
 
-  // Add filters
   if (filters.user_id) {
     conditions.push("user_id = ?");
     params.push(filters.user_id);

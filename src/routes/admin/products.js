@@ -8,28 +8,22 @@ import {
 } from "../../controllers/Admin/ProductController.js";
 import adminAuth from "../../middlewares/adminAuth.js";
 import upload from "../../middlewares/upload.js";
+import requirePermission from '../../middlewares/requirePermission.js';
 
 const router = express.Router();
 
-// ============ PRODUCTS ============
-// Get all products with filters (any authenticated admin)
-router.get("/", adminAuth, getAllProducts);
+router.get("/", adminAuth,requirePermission('product_management'), getAllProducts);
+router.get("/:id", adminAuth,requirePermission('product_management'), getProductById);
 
-// Get product by ID (any authenticated admin)
-router.get("/:id", adminAuth, getProductById);
-
-// Create new product (any authenticated admin with product_management permission)
-router.post("/", adminAuth, upload.fields([
+router.post("/", adminAuth,requirePermission('product_management'), upload.fields([
   { name: 'product_image', maxCount: 5 }
 ]), createProduct);
 
-// Update product (any authenticated admin with product_management permission)
-router.put("/:id", adminAuth, upload.fields([
+router.put("/:id", adminAuth,requirePermission('product_management'), upload.fields([
   { name: 'product_image', maxCount: 5 }
 ]), updateProduct);
 
-// Delete product (any authenticated admin with product_management permission)
-router.delete("/:id", adminAuth, deleteProduct);
+router.delete("/:id", adminAuth,requirePermission('product_management'), deleteProduct);
 
 export default router;
 

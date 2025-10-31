@@ -1,7 +1,6 @@
 import * as InvestmentReportModel from "../../models/InvestmentReport.js";
 import * as ProjectModel from "../../models/Project.js";
 
-// Get all investment reports
 export const getAllReports = async (req, res) => {
   try {
     const { project_id, report_period, page, limit } = req.query;
@@ -23,7 +22,6 @@ export const getAllReports = async (req, res) => {
   }
 };
 
-// Get single report
 export const getReportById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,7 +48,6 @@ export const getReportById = async (req, res) => {
   }
 };
 
-// Create investment report
 export const createReport = async (req, res) => {
   try {
     const {
@@ -66,7 +63,6 @@ export const createReport = async (req, res) => {
       videos
     } = req.body;
 
-    // Validate required fields
     if (!project_id || !report_period || !report_date) {
       return res.status(400).json({
         success: false,
@@ -74,7 +70,6 @@ export const createReport = async (req, res) => {
       });
     }
 
-    // Verify project exists
     const project = await ProjectModel.getProjectById(project_id);
     if (!project) {
       return res.status(404).json({
@@ -115,7 +110,6 @@ export const createReport = async (req, res) => {
   }
 };
 
-// Update investment report
 export const updateReport = async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,7 +123,6 @@ export const updateReport = async (req, res) => {
       });
     }
 
-    // Parse JSON fields if they exist
     if (reportData.financial_summary && typeof reportData.financial_summary === 'string') {
       reportData.financial_summary = JSON.parse(reportData.financial_summary);
     }
@@ -161,7 +154,6 @@ export const updateReport = async (req, res) => {
   }
 };
 
-// Delete investment report
 export const deleteReport = async (req, res) => {
   try {
     const { id } = req.params;

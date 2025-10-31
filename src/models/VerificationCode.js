@@ -28,7 +28,7 @@ export const updateVerificationCode = async (id, data) => {
 };
 
 export const getVerificationCodeById = async (userId, type) => {
-  const sql = `SELECT * FROM ${VerificationCodes} WHERE user_id = ? AND verification_type = ?`;
+  const sql = `SELECT * FROM ${VerificationCodes} WHERE user_id = ? AND verification_type = ? ORDER BY id DESC LIMIT 1`;
   return runSelectSqlQuery(sql, [userId, type]);
 };
 

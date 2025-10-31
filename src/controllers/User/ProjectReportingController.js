@@ -3,13 +3,11 @@ import * as InvestmentReportModel from "../../models/InvestmentReport.js";
 import * as InvestmentModel from "../../models/Investment.js";
 import * as ProjectModel from "../../models/Project.js";
 
-// Get project updates for user's investment
 export const getInvestmentUpdates = async (req, res) => {
   try {
     const userId = req.user.id;
     const { investment_id } = req.params;
 
-    // Get investment details
     const investment = await InvestmentModel.getInvestmentById(investment_id);
     
     if (!investment || investment.user_id !== userId) {
@@ -19,7 +17,6 @@ export const getInvestmentUpdates = async (req, res) => {
       });
     }
 
-    // Get all updates for this project
     const updates = await ProjectUpdateModel.getProjectUpdates(investment.project_id);
 
     res.json({
@@ -41,13 +38,11 @@ export const getInvestmentUpdates = async (req, res) => {
   }
 };
 
-// Get investment reports for user's investment
 export const getInvestmentReports = async (req, res) => {
   try {
     const userId = req.user.id;
     const { investment_id } = req.params;
 
-    // Get investment details
     const investment = await InvestmentModel.getInvestmentById(investment_id);
     
     if (!investment || investment.user_id !== userId) {
@@ -57,7 +52,6 @@ export const getInvestmentReports = async (req, res) => {
       });
     }
 
-    // Get all reports for this project
     const reports = await InvestmentReportModel.getProjectReports(investment.project_id);
 
     res.json({
@@ -79,12 +73,10 @@ export const getInvestmentReports = async (req, res) => {
   }
 };
 
-// Get project by ID with updates and reports
 export const getProjectWithDetails = async (req, res) => {
   try {
     const { project_id } = req.params;
 
-    // Get project
     const project = await ProjectModel.getProjectById(project_id);
     
     if (!project) {
@@ -94,10 +86,8 @@ export const getProjectWithDetails = async (req, res) => {
       });
     }
 
-    // Get updates
     const updates = await ProjectUpdateModel.getProjectUpdates(project_id);
 
-    // Get reports
     const reports = await InvestmentReportModel.getProjectReports(project_id);
 
     res.json({

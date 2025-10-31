@@ -1,13 +1,12 @@
 import * as ProjectModel from "../../models/Project.js";
 import * as InvestmentModel from "../../models/Investment.js";
 
-// Get approved projects for public display
 export const getApprovedProjects = async (req, res) => {
   try {
     const { search, category_id, page = 1, limit = 20 } = req.query;
     
     const filters = {
-      statuses: ['approved', 'running'], // Show both approved and running projects
+      statuses: ['approved', 'running'],
       search,
       category_id: category_id ? parseInt(category_id) : undefined,
       page: parseInt(page),
@@ -18,7 +17,6 @@ export const getApprovedProjects = async (req, res) => {
   const totalCount = await ProjectModel.getProjectsCount(filters);
   const totalPages = Math.ceil(totalCount / limit);
 
-    // Get investment stats for all projects
     const projectsWithStats = await Promise.all(
       projects.map(async (project) => {
         try {
@@ -41,22 +39,21 @@ export const getApprovedProjects = async (req, res) => {
       })
     );
 
-    // Transform the data to match the frontend expectations
     const transformedProjects = projectsWithStats.map(project => ({
       id: project.id,
       title: project.project_name,
       project_name: project.project_name,
       farmer_name: project.farmer_name,
       farmer_location: project.farmer_address,
-      project_type: 'crop', // Default type
+      project_type: 'crop',
       category_id: project.category_id,
       description: project.why_fund_with_krishibazar,
       why_fund_with_krishibazar: project.why_fund_with_krishibazar,
       total_fund_needed: project.per_unit_price,
-      current_funded: 0, // This would come from investments table later
+      current_funded: 0,
       duration_months: project.project_duration,
       expected_return_percent: project.earning_percentage,
-      risk_level: 'medium', // Default risk level
+      risk_level: 'medium',
       status: 'approved',
       per_unit_price: project.per_unit_price,
       total_returnable_per_unit: project.total_returnable_per_unit,
@@ -86,7 +83,6 @@ export const getApprovedProjects = async (req, res) => {
   }
 };
 
-// Get single project by ID for public display
 export const getProjectById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,7 +96,6 @@ export const getProjectById = async (req, res) => {
       });
     }
 
-    // Check if project is approved (not running or completed)
     if (project.status !== 'approved') {
       return res.status(404).json({
         success: false,
@@ -108,24 +103,22 @@ export const getProjectById = async (req, res) => {
       });
     }
 
-    // Get investment stats for this project
     const stats = await InvestmentModel.getProjectInvestmentStats(id);
     const availableUnits = project.total_units - (stats.total_booked_units || 0);
 
-    // Transform the data to match the frontend expectations
     const transformedProject = {
       id: project.id,
       project_name: project.project_name,
       farmer_name: project.farmer_name,
       farmer_address: project.farmer_address,
       farmer_phone: project.farmer_phone,
-      project_type: 'crop', // Default type, can be enhanced later
+      project_type: 'crop',
       description: project.why_fund_with_krishibazar,
       total_fund_needed: project.per_unit_price,
-      current_funded: 0, // This would come from investments table later
+      current_funded: 0,
       duration_months: project.project_duration,
       expected_return_percent: project.earning_percentage,
-      risk_level: 'medium', // Default risk level
+      risk_level: 'medium',
       status: project.status,
       per_unit_price: project.per_unit_price,
       total_returnable_per_unit: project.total_returnable_per_unit,

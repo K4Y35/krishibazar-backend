@@ -5,19 +5,10 @@ import requirePermission from '../../middlewares/requirePermission.js';
 
 const router = express.Router();
 
-// Get all reports
-router.get('/', adminAuth, InvestmentReportController.getAllReports);
-
-// Get report by ID
-router.get('/:id', adminAuth, InvestmentReportController.getReportById);
-
-// Create report (admin with permission)
-router.post('/', adminAuth, requirePermission('project_management'), InvestmentReportController.createReport);
-
-// Update report
-router.put('/:id', adminAuth, requirePermission('project_management'), InvestmentReportController.updateReport);
-
-// Delete report
+router.get('/', adminAuth,requirePermission('project_management'), InvestmentReportController.getAllReports);
+router.get('/:id', adminAuth,requirePermission('project_management'), InvestmentReportController.getReportById);
+router.post('/', adminAuth,requirePermission('project_management'), InvestmentReportController.createReport);
+router.put('/:id', adminAuth,requirePermission('project_management'), InvestmentReportController.updateReport);
 router.delete('/:id', adminAuth, requirePermission('project_management'), InvestmentReportController.deleteReport);
 
 export default router;

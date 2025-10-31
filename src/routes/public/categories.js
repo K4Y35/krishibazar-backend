@@ -5,7 +5,6 @@ import {
 
 const router = express.Router();
 
-// Get all active categories (public access)
 router.get("/", getAllCategories);
 
 export default router;

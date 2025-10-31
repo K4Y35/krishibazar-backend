@@ -2,7 +2,6 @@ import * as OrderModel from "../../models/Order.js";
 import { getProductById } from "../../models/Product.js";
 import { updateProduct } from "../../models/Product.js";
 
-// Create new order
 export const createOrder = async (req, res) => {
   try {
     const {
@@ -20,7 +19,6 @@ export const createOrder = async (req, res) => {
 
     const user_id = req.user.id;
 
-    // Validate required fields
     if (!product_id || !order_quantity || !customer_name || !customer_phone || !delivery_address) {
       return res.status(400).json({
         success: false,
@@ -28,7 +26,6 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Check product availability
     const product = await getProductById(product_id);
     if (!product) {
       return res.status(404).json({
@@ -37,7 +34,6 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Check if product is available and has enough stock
     if (!product.in_stock) {
       return res.status(400).json({
         success: false,
@@ -68,7 +64,6 @@ export const createOrder = async (req, res) => {
 
     const result = await OrderModel.createOrder(orderData);
 
-    // Reduce product quantity
     const newQuantity = product.quantity - order_quantity;
     const updatedStock = {
       quantity: newQuantity,
@@ -91,7 +86,6 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// Get user's orders
 export const getUserOrders = async (req, res) => {
   try {
     const user_id = req.user.id;
@@ -100,7 +94,6 @@ export const getUserOrders = async (req, res) => {
       user_id
     };
 
-    // Add order_status filter if provided
     if (req.query.order_status && req.query.order_status !== 'all') {
       filters.order_status = req.query.order_status;
     }
@@ -121,7 +114,6 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
-// Get single order by ID
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -134,7 +126,6 @@ export const getOrderById = async (req, res) => {
       });
     }
 
-    // Check if order belongs to user
     if (order.user_id !== req.user.id) {
       return res.status(403).json({
         success: false,

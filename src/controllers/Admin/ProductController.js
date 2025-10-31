@@ -1,6 +1,5 @@
 import * as ProductModel from "../../models/Product.js";
 
-// Get all products with filters
 export const getAllProducts = async (req, res) => {
   try {
     const { category, type, in_stock, search, page = 1, limit = 20 } = req.query;
@@ -37,7 +36,6 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// Get product by ID
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,7 +62,6 @@ export const getProductById = async (req, res) => {
   }
 };
 
-// Create new product
 export const createProduct = async (req, res) => {
   try {
     const {
@@ -87,7 +84,6 @@ export const createProduct = async (req, res) => {
       reviews
     } = req.body;
 
-    // Validate required fields
     if (!name || !category || !price || !min_order) {
       return res.status(400).json({
         success: false,
@@ -95,11 +91,9 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    // Handle file uploads
     let product_images = null;
     
     if (req.files && req.files['product_image']) {
-      // Join multiple image filenames with comma
       product_images = req.files['product_image'].map(file => file.filename).join(',');
     }
 
@@ -142,12 +136,10 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Update product
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Check if product exists
     const existingProduct = await ProductModel.getProductById(id);
     if (!existingProduct) {
       return res.status(404).json({
@@ -156,7 +148,6 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    // Build update data
     const updateData = {};
     const {
       name,
@@ -196,7 +187,6 @@ export const updateProduct = async (req, res) => {
     if (rating !== undefined) updateData.rating = parseFloat(rating);
     if (reviews !== undefined) updateData.reviews = parseInt(reviews);
 
-    // Handle file uploads
     if (req.files && req.files['product_image']) {
       const product_images = req.files['product_image'].map(file => file.filename).join(',');
       updateData.product_images = product_images;
@@ -218,12 +208,10 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// Delete product
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Check if product exists
     const existingProduct = await ProductModel.getProductById(id);
     if (!existingProduct) {
       return res.status(404).json({

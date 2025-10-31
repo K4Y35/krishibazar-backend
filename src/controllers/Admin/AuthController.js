@@ -41,13 +41,10 @@ export const adminLogin = async (req, res) => {
 
   const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "24h" });
 
-  // Get permissions
   let permissions = [];
   if (user.username === "superadmin") {
-    // Superadmin has all permissions
     permissions = await PermissionModel.getAllPermissions();
   } else {
-    // Get effective permissions from roles and direct assignments
     permissions = await AdminRBACModel.getAdminEffectivePermissions(user.id);
   }
 

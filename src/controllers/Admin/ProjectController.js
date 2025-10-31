@@ -3,7 +3,6 @@ import * as InvestmentModel from "../../models/Investment.js";
 import path from "path";
 import fs from "fs";
 
-// Get all projects with filters
 export const getAllProjects = async (req, res) => {
   try {
     const { status, search, page = 1, limit = 10 } = req.query;
@@ -38,7 +37,6 @@ export const getAllProjects = async (req, res) => {
   }
 };
 
-// Get project by ID
 export const getProjectById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -51,7 +49,6 @@ export const getProjectById = async (req, res) => {
       });
     }
 
-    // Get investment stats for this project
     let stats = null;
     try {
       stats = await InvestmentModel.getProjectInvestmentStats(id);
@@ -76,7 +73,6 @@ export const getProjectById = async (req, res) => {
   }
 };
 
-// Create new project
 export const createProject = async (req, res) => {
   try {
     const {
@@ -93,7 +89,6 @@ export const createProject = async (req, res) => {
       category_id
     } = req.body;
 
-    // Validate required fields
     if (!farmer_name || !farmer_phone || !farmer_address || !project_name || 
         !per_unit_price || !total_returnable_per_unit || !project_duration || 
         !total_units || !why_fund_with_krishibazar || !earning_percentage) {
@@ -169,7 +164,6 @@ export const updateProject = async (req, res) => {
       });
     }
 
-    // Check if user has permission to update (created by them or super admin)
     if (project.created_by !== req.user.id && req.user.username !== 'superadmin') {
       return res.status(403).json({
         success: false,
@@ -179,9 +173,7 @@ export const updateProject = async (req, res) => {
 
     const updateData = { ...req.body };
     
-    // Handle file upload
     if (req.file) {
-      // Delete old file if exists
       if (project.nid_card_photo) {
         const oldFilePath = path.join('src/public', project.nid_card_photo);
         if (fs.existsSync(oldFilePath)) {
@@ -191,7 +183,6 @@ export const updateProject = async (req, res) => {
       updateData.nid_card_photo = req.file.filename;
     }
 
-    // Convert numeric fields
     if (updateData.per_unit_price) {
       updateData.per_unit_price = parseFloat(updateData.per_unit_price);
     }
@@ -226,7 +217,6 @@ export const updateProject = async (req, res) => {
   }
 };
 
-// Delete project
 export const deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -239,7 +229,6 @@ export const deleteProject = async (req, res) => {
       });
     }
 
-    // Check if user has permission to delete (created by them or super admin)
     if (project.created_by !== req.user.id && req.user.username !== 'superadmin') {
       return res.status(403).json({
         success: false,
@@ -247,7 +236,6 @@ export const deleteProject = async (req, res) => {
       });
     }
 
-    // Delete associated file
     if (project.nid_card_photo) {
       const filePath = path.join('src/public', project.nid_card_photo);
       if (fs.existsSync(filePath)) {
@@ -271,7 +259,6 @@ export const deleteProject = async (req, res) => {
   }
 };
 
-// Approve project (super admin only)
 export const approveProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -309,7 +296,6 @@ export const approveProject = async (req, res) => {
   }
 };
 
-// Reject project (super admin only)
 export const rejectProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -355,7 +341,6 @@ export const rejectProject = async (req, res) => {
   }
 };
 
-// Start project (admin only)
 export const startProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -393,7 +378,6 @@ export const startProject = async (req, res) => {
   }
 };
 
-// Complete project (admin only)
 export const completeProject = async (req, res) => {
   try {
     const { id } = req.params;

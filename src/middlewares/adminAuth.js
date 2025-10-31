@@ -24,7 +24,6 @@ const adminAuth = async (req, res, next) => {
     req.user = admin;
     next();
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error("Admin authentication error:", error);
     res.status(401).json({ error: "Please authenticate as admin" });
   }

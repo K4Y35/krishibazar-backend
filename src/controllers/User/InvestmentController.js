@@ -1,7 +1,6 @@
 import * as InvestmentModel from "../../models/Investment.js";
 import * as ProjectModel from "../../models/Project.js";
 
-// Get user's investments
 export const getUserInvestments = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -24,7 +23,6 @@ export const getUserInvestments = async (req, res) => {
   }
 };
 
-// Create new investment
 export const createInvestment = async (req, res) => {
   try {
     const {
@@ -37,7 +35,6 @@ export const createInvestment = async (req, res) => {
 
     const userId = req.user.id;
 
-    // Validate required fields
     if (!project_id || !units_invested || !payment_method) {
       return res.status(400).json({
         success: false,
@@ -45,7 +42,6 @@ export const createInvestment = async (req, res) => {
       });
     }
 
-    // Get project details
     const project = await ProjectModel.getProjectById(project_id);
     if (!project) {
       return res.status(404).json({
@@ -61,7 +57,6 @@ export const createInvestment = async (req, res) => {
       });
     }
 
-    // Check if enough units are available
     const stats = await InvestmentModel.getProjectInvestmentStats(project_id);
     const availableUnits = project.total_units - (stats.confirmed_units || 0);
     
@@ -72,7 +67,6 @@ export const createInvestment = async (req, res) => {
       });
     }
 
-    // Calculate amounts
     const amount_per_unit = project.per_unit_price;
     const total_amount = amount_per_unit * units_invested;
     const expected_return_amount = project.total_returnable_per_unit * units_invested;
@@ -111,7 +105,6 @@ export const createInvestment = async (req, res) => {
   }
 };
 
-// Get investment details
 export const getInvestmentById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -126,7 +119,6 @@ export const getInvestmentById = async (req, res) => {
       });
     }
 
-    // Check if user owns this investment
     if (investment.user_id !== userId) {
       return res.status(403).json({
         success: false,
@@ -148,7 +140,6 @@ export const getInvestmentById = async (req, res) => {
   }
 };
 
-// Cancel investment
 export const cancelInvestment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -164,7 +155,6 @@ export const cancelInvestment = async (req, res) => {
       });
     }
 
-    // Check if user owns this investment
     if (investment.user_id !== userId) {
       return res.status(403).json({
         success: false,
@@ -172,7 +162,6 @@ export const cancelInvestment = async (req, res) => {
       });
     }
 
-    // Check if investment can be cancelled
     if (investment.status !== 'pending') {
       return res.status(400).json({
         success: false,

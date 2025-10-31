@@ -3,7 +3,6 @@ import * as ProjectController from '../../controllers/Public/ProjectController.j
 
 const router = express.Router();
 
-// Public routes for the main site to fetch approved projects
 router.get('/', ProjectController.getApprovedProjects);
 router.get('/:id', ProjectController.getProjectById);
 
